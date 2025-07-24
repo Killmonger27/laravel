@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Head, router, usePage } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import AgentLayout from "@/Layouts/AgentLayout";
 import {
     FiUsers,
@@ -13,8 +13,6 @@ import {
     FiCalendar,
     FiTrendingUp,
     FiActivity,
-    FiAlertCircle,
-    FiCheck,
 } from "react-icons/fi";
 
 export default function GuichetDashboard({
@@ -25,7 +23,7 @@ export default function GuichetDashboard({
     statistiques,
 }) {
     const [currentTime, setCurrentTime] = useState(new Date());
-    const { flash } = usePage().props;
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -45,7 +43,7 @@ export default function GuichetDashboard({
         },
         {
             name: "Temps moyen",
-            value: statistiques?.tempsmoyen || "0min",
+            value: statistiques?.temps_moyen || "0 min",
             icon: FiClock,
             color: "text-green-600",
             bg: "bg-green-100",
@@ -66,23 +64,54 @@ export default function GuichetDashboard({
         },
     ];
 
-    const appellerProchainTicket = () => {
-        router.post("/guichet/appeler");
-    };
+    const executeAction = async (action, ticketId = null) => {
+        if (isLoading) return;
 
-    const commencerTicket = (ticketId) => {
-        router.post(`/guichet/commencer/${ticketId}`);
-    };
+        setIsLoading(true);
 
-    const terminerTicket = (ticketId) => {
-        if (confirm("Êtes-vous sûr de vouloir terminer ce ticket ?")) {
-            router.post(`/guichet/terminer/${ticketId}`);
+        try {
+            let url;
+            switch (action) {
+                case "appeler":
+                    url = "/guichet/appeler";
+                    break;
+                case "commencer":
+                    url = `/guichet/commencer/${ticketId}`;
+                    break;
+                case "terminer":
+                    url = `/guichet/terminer/${ticketId}`;
+                    break;
+                default:
+                    return;
+            }
+
+            await router.post(
+                url,
+                {},
+                {
+                    onSuccess: () => {
+                        // Redirection pour recharger les données
+                        window.location.href = "/guichet";
+                    },
+                    onError: (errors) => {
+                        console.error(
+                            `Erreur lors de l'action ${action}:`,
+                            errors
+                        );
+                        alert(
+                            `Erreur: ${
+                                errors.error ||
+                                `Impossible d'exécuter l'action ${action}`
+                            }`
+                        );
+                        setIsLoading(false);
+                    },
+                }
+            );
+        } catch (error) {
+            console.error("Erreur:", error);
+            setIsLoading(false);
         }
-    };
-
-    const mettrEnPause = () => {
-        // Logique pour mettre en pause
-        console.log("Mise en pause...");
     };
 
     return (
@@ -92,21 +121,6 @@ export default function GuichetDashboard({
             title="Interface Guichet"
         >
             <Head title="Interface Guichet" />
-
-            {/* Messages flash */}
-            {flash.success && (
-                <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded flex items-center">
-                    <FiCheck className="h-5 w-5 mr-2" />
-                    {flash.success}
-                </div>
-            )}
-
-            {flash.error && (
-                <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex items-center">
-                    <FiAlertCircle className="h-5 w-5 mr-2" />
-                    {flash.error}
-                </div>
-            )}
 
             {/* Header avec horloge */}
             <div className="mb-6">
@@ -134,6 +148,16 @@ export default function GuichetDashboard({
                     </div>
                 </div>
             </div>
+
+            {/* Indicateur de chargement */}
+            {isLoading && (
+                <div className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+                    <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                        Traitement en cours...
+                    </div>
+                </div>
+            )}
 
             {/* Statistiques */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
@@ -210,43 +234,54 @@ export default function GuichetDashboard({
 
                                     <div className="flex items-center text-gray-600">
                                         <FiCalendar className="h-4 w-4 mr-2" />
-                                        Appelé à{" "}
+                                        {ticketEnCours.statut === "appele"
+                                            ? "Appelé"
+                                            : "En cours"}{" "}
+                                        à{" "}
                                         {new Date(
-                                            ticketEnCours.heure_appel
+                                            ticketEnCours.heure_appel ||
+                                                ticketEnCours.heure_debut
                                         ).toLocaleTimeString()}
                                     </div>
 
                                     <div className="flex space-x-3 pt-4">
-                                        {ticketEnCours.statut === "appele" && (
+                                        {ticketEnCours.statut === "appele" ? (
                                             <button
                                                 onClick={() =>
-                                                    commencerTicket(
+                                                    executeAction(
+                                                        "commencer",
                                                         ticketEnCours.id
                                                     )
                                                 }
-                                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
+                                                disabled={isLoading}
+                                                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
                                             >
                                                 <FiPlay className="h-4 w-4 mr-2" />
                                                 Commencer
                                             </button>
-                                        )}
-                                        {ticketEnCours.statut ===
-                                            "en_cours" && (
+                                        ) : (
                                             <button
                                                 onClick={() =>
-                                                    terminerTicket(
+                                                    executeAction(
+                                                        "terminer",
                                                         ticketEnCours.id
                                                     )
                                                 }
-                                                className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
+                                                disabled={isLoading}
+                                                className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
                                             >
                                                 <FiCheckCircle className="h-4 w-4 mr-2" />
                                                 Terminer
                                             </button>
                                         )}
                                         <button
-                                            onClick={mettrEnPause}
-                                            className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
+                                            onClick={() =>
+                                                alert(
+                                                    "Fonction pause en développement"
+                                                )
+                                            }
+                                            disabled={isLoading}
+                                            className="bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
                                         >
                                             <FiPause className="h-4 w-4 mr-2" />
                                             Pause
@@ -260,13 +295,21 @@ export default function GuichetDashboard({
                                         Aucun ticket en cours
                                     </p>
                                     <button
-                                        onClick={appellerProchainTicket}
-                                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-md font-medium transition-colors duration-200 flex items-center mx-auto"
-                                        disabled={!ticketsEnAttente?.length}
+                                        onClick={() => executeAction("appeler")}
+                                        disabled={
+                                            isLoading ||
+                                            !ticketsEnAttente?.length
+                                        }
+                                        className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-md font-medium transition-colors duration-200 flex items-center mx-auto"
                                     >
                                         <FiPlay className="h-4 w-4 mr-2" />
                                         Appeler le prochain
                                     </button>
+                                    {!ticketsEnAttente?.length && (
+                                        <p className="text-sm text-gray-400 mt-2">
+                                            Aucun ticket en attente
+                                        </p>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -342,37 +385,41 @@ export default function GuichetDashboard({
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <button
-                            onClick={appellerProchainTicket}
-                            disabled={
-                                !ticketsEnAttente?.length || ticketEnCours
-                            }
-                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-3 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
+                            onClick={() => executeAction("appeler")}
+                            disabled={isLoading || !ticketsEnAttente?.length}
+                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-3 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
                         >
                             <FiSkipForward className="h-4 w-4 mr-2" />
                             Appeler suivant
                         </button>
                         <button
-                            onClick={mettrEnPause}
-                            className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-3 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
+                            onClick={() =>
+                                alert("Fonction pause en développement")
+                            }
+                            disabled={isLoading}
+                            className="bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-400 text-white px-4 py-3 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
                         >
                             <FiPause className="h-4 w-4 mr-2" />
                             Prendre une pause
                         </button>
-                        {ticketEnCours &&
-                            ticketEnCours.statut === "en_cours" && (
-                                <button
-                                    onClick={() =>
-                                        terminerTicket(ticketEnCours.id)
-                                    }
-                                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
-                                >
-                                    <FiCheckCircle className="h-4 w-4 mr-2" />
-                                    Terminer service
-                                </button>
-                            )}
-                        <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-md font-medium transition-colors duration-200 flex items-center justify-center">
+                        <button
+                            onClick={() =>
+                                ticketEnCours &&
+                                executeAction("terminer", ticketEnCours.id)
+                            }
+                            disabled={isLoading || !ticketEnCours}
+                            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-3 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
+                        >
+                            <FiCheckCircle className="h-4 w-4 mr-2" />
+                            Terminer service
+                        </button>
+                        <button
+                            onClick={() => (window.location.href = "/guichet")}
+                            disabled={isLoading}
+                            className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white px-4 py-3 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
+                        >
                             <FiActivity className="h-4 w-4 mr-2" />
-                            Historique
+                            Actualiser
                         </button>
                     </div>
                 </div>

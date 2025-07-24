@@ -124,7 +124,7 @@ export default function Register() {
                         <div className="mt-4">
                             <InputLabel
                                 htmlFor="guichet_id"
-                                value="Guichet assigné *"
+                                value="Guichet assigné"
                             />
                             <select
                                 id="guichet_id"
@@ -134,7 +134,6 @@ export default function Register() {
                                     setData("guichet_id", e.target.value)
                                 }
                                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                required={data.role === "agent"}
                             >
                                 <option value="">
                                     Sélectionner un guichet
@@ -149,10 +148,6 @@ export default function Register() {
                                 message={errors.guichet_id}
                                 className="mt-2"
                             />
-                            <p className="text-sm text-gray-600 mt-1">
-                                Chaque agent doit être assigné à un guichet
-                                unique
-                            </p>
                         </div>
                     </>
                 )}

@@ -43,9 +43,9 @@ class LoginRequest extends FormRequest
 
         $login = $this->input('login');
         $password = $this->input('password');
-        
+
         // Tenter la connexion avec email ou matricule
-        $credentials = filter_var($login, FILTER_VALIDATE_EMAIL) 
+        $credentials = filter_var($login, FILTER_VALIDATE_EMAIL)
             ? ['email' => $login, 'password' => $password]
             : ['matricule' => $login, 'password' => $password];
 

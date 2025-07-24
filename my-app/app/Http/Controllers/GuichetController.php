@@ -15,7 +15,7 @@ class GuichetController extends Controller
     public function index(Request $request)
     {
         $agent = $request->user();
-        
+
         // Vérifier que l'agent a un guichet assigné
         if (!$agent->guichet_id) {
             return redirect()->route('dashboard')->with('error', 'Aucun guichet assigné. Contactez l\'administrateur.');
@@ -23,20 +23,20 @@ class GuichetController extends Controller
 
         // Charger les informations de l'agent avec son guichet et service
         $agent->load(['guichet.service']);
-        
+
         // Ticket en cours pour cet agent
         $ticketEnCours = Ticket::where('agent_id', $agent->id)
                               ->where('statut', 'en_cours')
                               ->with(['service', 'guichet'])
                               ->first();
-        
+
         // Tickets en attente pour le service de ce guichet
         $ticketsEnAttente = Ticket::where('service_id', $agent->guichet->service_id)
                                  ->where('statut', 'en_attente')
                                  ->orderBy('created_at')
                                  ->with(['service'])
                                  ->get();
-        
+
         // Tickets appelés pour ce guichet
         $ticketsAppeles = Ticket::where('guichet_id', $agent->guichet_id)
                                ->where('statut', 'appele')
@@ -67,18 +67,18 @@ class GuichetController extends Controller
     public function appellerProchain(Request $request)
     {
         $agent = $request->user();
-        
+
         if (!$agent->guichet_id) {
-            return response()->json(['error' => 'Aucun guichet assigné'], 400);
+            return redirect()->back()->with('error', 'Aucun guichet assigné');
         }
 
         // Vérifier qu'il n'y a pas déjà un ticket en cours
         $ticketEnCours = Ticket::where('agent_id', $agent->id)
                               ->where('statut', 'en_cours')
                               ->first();
-                              
+
         if ($ticketEnCours) {
-            return response()->json(['error' => 'Un ticket est déjà en cours de traitement'], 400);
+            return redirect()->back()->with('error', 'Un ticket est déjà en cours de traitement');
         }
 
         // Trouver le prochain ticket en attente pour le service
@@ -88,7 +88,7 @@ class GuichetController extends Controller
                                ->first();
 
         if (!$prochainTicket) {
-            return response()->json(['error' => 'Aucun ticket en attente'], 404);
+            return redirect()->back()->with('error', 'Aucun ticket en attente');
         }
 
         // Assigner le ticket à l'agent et changer son statut
@@ -102,11 +102,7 @@ class GuichetController extends Controller
         // Mettre à jour le statut du guichet
         $agent->guichet->update(['statut' => 'occupe']);
 
-        return response()->json([
-            'success' => true,
-            'ticket' => $prochainTicket->load(['service']),
-            'message' => 'Ticket appelé avec succès'
-        ]);
+        return redirect()->back()->with('success', 'Ticket ' . $prochainTicket->numero . ' appelé avec succès');
     }
 
     /**
@@ -115,10 +111,10 @@ class GuichetController extends Controller
     public function commencerTicket(Request $request, Ticket $ticket)
     {
         $agent = $request->user();
-        
+
         // Vérifier que le ticket appartient à cet agent
         if ($ticket->agent_id !== $agent->id) {
-            return response()->json(['error' => 'Ce ticket ne vous appartient pas'], 403);
+            return redirect()->back()->with('error', 'Ce ticket ne vous appartient pas');
         }
 
         $ticket->update([
@@ -126,11 +122,7 @@ class GuichetController extends Controller
             'heure_debut' => now()
         ]);
 
-        return response()->json([
-            'success' => true,
-            'ticket' => $ticket->load(['service']),
-            'message' => 'Traitement commencé'
-        ]);
+        return redirect()->back()->with('success', 'Traitement du ticket ' . $ticket->numero . ' commencé');
     }
 
     /**
@@ -139,10 +131,10 @@ class GuichetController extends Controller
     public function terminerTicket(Request $request, Ticket $ticket)
     {
         $agent = $request->user();
-        
+
         // Vérifier que le ticket appartient à cet agent
         if ($ticket->agent_id !== $agent->id) {
-            return response()->json(['error' => 'Ce ticket ne vous appartient pas'], 403);
+            return redirect()->back()->with('error', 'Ce ticket ne vous appartient pas');
         }
 
         $ticket->update([
@@ -153,10 +145,7 @@ class GuichetController extends Controller
         // Libérer le guichet
         $agent->guichet->update(['statut' => 'libre']);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Ticket terminé avec succès'
-        ]);
+        return redirect()->back()->with('success', 'Ticket ' . $ticket->numero . ' terminé avec succès');
     }
 
     /**
@@ -165,34 +154,34 @@ class GuichetController extends Controller
     public function dashboard()
     {
         $user = auth()->user();
-        
+
         // Vérifier que l'agent a un guichet assigné
         if (!$user->guichet_id) {
             return redirect('/dashboard')->with('error', 'Aucun guichet assigné. Contactez l\'administrateur.');
         }
-        
+
         $guichet = $user->guichet->load('service');
-        
+
         // Récupérer les tickets en attente pour ce service
         $ticketsEnAttente = Ticket::where('service_id', $guichet->service_id)
             ->where('statut', 'en_attente')
             ->with('service')
             ->orderBy('created_at')
             ->get();
-        
-        // Récupérer le ticket actuellement en cours pour ce guichet
-        $ticketEnCours = Ticket::where('guichet_id', $guichet->id)
-            ->where('statut', 'en_cours')
+
+        // Récupérer le ticket actuellement en cours pour cet agent
+        $ticketEnCours = Ticket::where('agent_id', $user->id)
+            ->whereIn('statut', ['appele', 'en_cours'])
             ->with('service')
             ->first();
-        
+
         // Calculer les statistiques du jour
         $today = now()->toDateString();
         $ticketsTraites = Ticket::where('agent_id', $user->id)
             ->whereDate('created_at', $today)
             ->where('statut', 'termine')
             ->count();
-        
+
         // Calculer le temps moyen de traitement
         $tempsMovenMinutes = Ticket::where('agent_id', $user->id)
             ->whereDate('created_at', $today)
@@ -201,23 +190,25 @@ class GuichetController extends Controller
             ->whereNotNull('heure_fin')
             ->selectRaw('AVG((julianday(heure_fin) - julianday(heure_debut)) * 24 * 60) as temps_moyen')
             ->value('temps_moyen');
-        
-        $tempsMoyen = $tempsMovenMinutes ? round($tempsMovenMinutes) . 'min' : '0min';
-        
+
+        $tempsMoyen = $tempsMovenMinutes ? round($tempsMovenMinutes) . ' min' : '0 min';
+
         // Calculer la performance (pourcentage de tickets traités vs reçus)
         $ticketsRecus = Ticket::where('service_id', $guichet->service_id)
             ->whereDate('created_at', $today)
             ->count();
-        
+
         $performance = $ticketsRecus > 0 ? round(($ticketsTraites / $ticketsRecus) * 100) . '%' : '100%';
-        
+
         $statistiques = [
             'tickets_traites' => $ticketsTraites,
-            'tempsmoyen' => $tempsMoyen,
+            'temps_moyen' => $tempsMoyen,
             'performance' => $performance,
+            'tickets_en_attente' => $ticketsEnAttente->count(),
+            'services_actifs' => 2, // Statique pour l'instant
         ];
-        
-        return Inertia::render('GuichetDashboard', [
+
+        return Inertia::render('GuichetDashboardNew', [
             'guichet' => $guichet,
             'ticketsEnAttente' => $ticketsEnAttente,
             'ticketEnCours' => $ticketEnCours,

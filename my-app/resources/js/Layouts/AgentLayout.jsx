@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { useState } from "react";
+import { Head, Link, router } from "@inertiajs/react";
 import {
     FiHome,
     FiUsers,
@@ -11,21 +11,46 @@ import {
     FiMenu,
     FiX,
     FiBell,
-    FiUser
-} from 'react-icons/fi';
+    FiUser,
+} from "react-icons/fi";
 
-export default function AgentLayout({ user, guichet, children, title = 'Interface Agent' }) {
+export default function AgentLayout({
+    user,
+    guichet,
+    children,
+    title = "Interface Agent",
+}) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const navigation = [
-        { name: 'Tableau de bord', href: '/guichet', icon: FiHome, current: true },
-        { name: 'File d\'attente', href: '/guichet/queue', icon: FiUsers, current: false },
-        { name: 'Historique', href: '/guichet/history', icon: FiClock, current: false },
-        { name: 'Paramètres', href: '/guichet/settings', icon: FiSettings, current: false },
+        {
+            name: "Tableau de bord",
+            href: "/guichet",
+            icon: FiHome,
+            current: true,
+        },
+        {
+            name: "File d'attente",
+            href: "/guichet/queue",
+            icon: FiUsers,
+            current: false,
+        },
+        {
+            name: "Historique",
+            href: "/guichet/history",
+            icon: FiClock,
+            current: false,
+        },
+        {
+            name: "Paramètres",
+            href: "/guichet/settings",
+            icon: FiSettings,
+            current: false,
+        },
     ];
 
     const handleLogout = () => {
-        router.post(route('logout'));
+        router.post(route("logout"));
     };
 
     return (
@@ -35,7 +60,10 @@ export default function AgentLayout({ user, guichet, children, title = 'Interfac
             {/* Sidebar mobile overlay */}
             {sidebarOpen && (
                 <div className="fixed inset-0 flex z-40 md:hidden">
-                    <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
+                    <div
+                        className="fixed inset-0 bg-gray-600 bg-opacity-75"
+                        onClick={() => setSidebarOpen(false)}
+                    />
                     <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
                         <div className="absolute top-0 right-0 -mr-12 pt-2">
                             <button
@@ -46,7 +74,12 @@ export default function AgentLayout({ user, guichet, children, title = 'Interfac
                                 <FiX className="h-6 w-6 text-white" />
                             </button>
                         </div>
-                        <SidebarContent navigation={navigation} guichet={guichet} user={user} onLogout={handleLogout} />
+                        <SidebarContent
+                            navigation={navigation}
+                            guichet={guichet}
+                            user={user}
+                            onLogout={handleLogout}
+                        />
                     </div>
                 </div>
             )}
@@ -54,7 +87,12 @@ export default function AgentLayout({ user, guichet, children, title = 'Interfac
             {/* Desktop sidebar */}
             <div className="hidden md:flex md:flex-shrink-0">
                 <div className="flex flex-col w-64">
-                    <SidebarContent navigation={navigation} guichet={guichet} user={user} onLogout={handleLogout} />
+                    <SidebarContent
+                        navigation={navigation}
+                        guichet={guichet}
+                        user={user}
+                        onLogout={handleLogout}
+                    />
                 </div>
             </div>
 
@@ -69,7 +107,7 @@ export default function AgentLayout({ user, guichet, children, title = 'Interfac
                     >
                         <FiMenu className="h-6 w-6" />
                     </button>
-                    
+
                     <div className="flex-1 px-4 flex justify-between">
                         <div className="flex-1 flex">
                             <div className="w-full flex md:ml-0">
@@ -80,7 +118,7 @@ export default function AgentLayout({ user, guichet, children, title = 'Interfac
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="ml-4 flex items-center md:ml-6">
                             {/* Notifications */}
                             <button
@@ -95,8 +133,12 @@ export default function AgentLayout({ user, guichet, children, title = 'Interfac
                                 <div className="flex items-center">
                                     <FiUser className="h-8 w-8 text-gray-400" />
                                     <div className="ml-3 text-sm">
-                                        <div className="font-medium text-gray-900">{user.name}</div>
-                                        <div className="text-gray-500">{user.matricule}</div>
+                                        <div className="font-medium text-gray-900">
+                                            {user.name}
+                                        </div>
+                                        <div className="text-gray-500">
+                                            {user.matricule}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -120,19 +162,27 @@ export default function AgentLayout({ user, guichet, children, title = 'Interfac
 function SidebarContent({ navigation, guichet, user, onLogout }) {
     const getStatusColor = (statut) => {
         switch (statut) {
-            case 'connecte': return 'bg-green-100 text-green-800';
-            case 'en_pause': return 'bg-yellow-100 text-yellow-800';
-            case 'deconnecte': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
+            case "connecte":
+                return "bg-green-100 text-green-800";
+            case "en_pause":
+                return "bg-yellow-100 text-yellow-800";
+            case "deconnecte":
+                return "bg-red-100 text-red-800";
+            default:
+                return "bg-gray-100 text-gray-800";
         }
     };
 
     const getStatusIcon = (statut) => {
         switch (statut) {
-            case 'connecte': return <FiCheckSquare className="h-4 w-4" />;
-            case 'en_pause': return <FiPause className="h-4 w-4" />;
-            case 'deconnecte': return <FiX className="h-4 w-4" />;
-            default: return <FiClock className="h-4 w-4" />;
+            case "connecte":
+                return <FiCheckSquare className="h-4 w-4" />;
+            case "en_pause":
+                return <FiPause className="h-4 w-4" />;
+            case "deconnecte":
+                return <FiX className="h-4 w-4" />;
+            default:
+                return <FiClock className="h-4 w-4" />;
         }
     };
 
@@ -153,16 +203,26 @@ function SidebarContent({ navigation, guichet, user, onLogout }) {
                             </div>
                         </div>
                         <div className="ml-3">
-                            <div className="text-white font-medium">{user.name}</div>
-                            <div className="text-indigo-200 text-sm">{user.matricule}</div>
+                            <div className="text-white font-medium">
+                                {user.name}
+                            </div>
+                            <div className="text-indigo-200 text-sm">
+                                {user.matricule}
+                            </div>
                         </div>
                     </div>
-                    
+
                     {/* Status */}
                     <div className="mt-3">
-                        <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user.statut)}`}>
+                        <div
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                                user.statut
+                            )}`}
+                        >
                             {getStatusIcon(user.statut)}
-                            <span className="ml-1 capitalize">{user.statut.replace('_', ' ')}</span>
+                            <span className="ml-1 capitalize">
+                                {user.statut.replace("_", " ")}
+                            </span>
                         </div>
                     </div>
 
@@ -186,8 +246,8 @@ function SidebarContent({ navigation, guichet, user, onLogout }) {
                             href={item.href}
                             className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
                                 item.current
-                                    ? 'bg-indigo-700 text-white'
-                                    : 'text-indigo-100 hover:bg-indigo-700 hover:text-white'
+                                    ? "bg-indigo-700 text-white"
+                                    : "text-indigo-100 hover:bg-indigo-700 hover:text-white"
                             }`}
                         >
                             <Icon className="mr-3 h-5 w-5 flex-shrink-0" />

@@ -60,6 +60,11 @@ class User extends Authenticatable
         return $this->belongsTo(Guichet::class);
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'agent_id');
+    }
+
     /**
      * Méthodes de rôle
      */
@@ -106,7 +111,7 @@ class User extends Authenticatable
             ]);
         }
     }
-    
+
     /**
      * Vérifier qu'un agent a un guichet assigné
      */
@@ -114,7 +119,7 @@ class User extends Authenticatable
     {
         return $this->isAgent() ? !is_null($this->guichet_id) : true;
     }
-    
+
     /**
      * Obtenir le guichet de l'agent avec vérification
      */
@@ -123,21 +128,21 @@ class User extends Authenticatable
         if (!$this->isAgent()) {
             throw new \Exception('Cette méthode est réservée aux agents.');
         }
-        
+
         if (!$this->guichet_id) {
             throw new \Exception('Cet agent n\'a pas de guichet assigné.');
         }
-        
+
         return $this->guichet;
     }
-    
+
     /**
      * Boot method pour ajouter des validations
      */
     protected static function boot()
     {
         parent::boot();
-        
+
         // Validation avant sauvegarde
         static::saving(function ($user) {
             // Si c'est un agent, il doit avoir un guichet assigné (sauf à la création)

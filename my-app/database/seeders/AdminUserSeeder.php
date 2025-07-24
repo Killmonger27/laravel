@@ -27,7 +27,7 @@ class AdminUserSeeder extends Seeder
 
         // Créer un agent de test avec guichet assigné
         $guichet = \App\Models\Guichet::where('numero', 'G01')->first();
-        
+
         User::firstOrCreate(
             ['matricule' => 'AGT001'],
             [
@@ -51,7 +51,7 @@ class AdminUserSeeder extends Seeder
 
         foreach ($agents as $agentData) {
             $guichet = \App\Models\Guichet::where('numero', $agentData['guichet'])->first();
-            
+
             User::firstOrCreate(
                 ['matricule' => $agentData['matricule']],
                 [

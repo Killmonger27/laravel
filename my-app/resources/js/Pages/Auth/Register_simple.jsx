@@ -4,11 +4,8 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
-import { useState, useEffect } from "react";
 
 export default function Register() {
-    const [guichets, setGuichets] = useState([]);
-
     const { data, setData, post, processing, errors, reset } = useForm({
         name: "",
         email: "",
@@ -16,18 +13,7 @@ export default function Register() {
         password_confirmation: "",
         role: "agent",
         matricule: "",
-        guichet_id: "",
     });
-
-    // Charger la liste des guichets pour les agents
-    useEffect(() => {
-        if (data.role === "agent") {
-            fetch("/api/guichets")
-                .then((response) => response.json())
-                .then((data) => setGuichets(data))
-                .catch((error) => console.error("Erreur:", error));
-        }
-    }, [data.role]);
 
     const submit = (e) => {
         e.preventDefault();
@@ -100,61 +86,25 @@ export default function Register() {
                 </div>
 
                 {data.role === "agent" && (
-                    <>
-                        <div className="mt-4">
-                            <InputLabel htmlFor="matricule" value="Matricule" />
-                            <TextInput
-                                id="matricule"
-                                type="text"
-                                name="matricule"
-                                value={data.matricule}
-                                className="mt-1 block w-full"
-                                onChange={(e) =>
-                                    setData("matricule", e.target.value)
-                                }
-                                required={data.role === "agent"}
-                                placeholder="AGT001"
-                            />
-                            <InputError
-                                message={errors.matricule}
-                                className="mt-2"
-                            />
-                        </div>
-
-                        <div className="mt-4">
-                            <InputLabel
-                                htmlFor="guichet_id"
-                                value="Guichet assigné *"
-                            />
-                            <select
-                                id="guichet_id"
-                                name="guichet_id"
-                                value={data.guichet_id}
-                                onChange={(e) =>
-                                    setData("guichet_id", e.target.value)
-                                }
-                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                required={data.role === "agent"}
-                            >
-                                <option value="">
-                                    Sélectionner un guichet
-                                </option>
-                                {guichets.map((guichet) => (
-                                    <option key={guichet.id} value={guichet.id}>
-                                        {guichet.numero} - {guichet.nom}
-                                    </option>
-                                ))}
-                            </select>
-                            <InputError
-                                message={errors.guichet_id}
-                                className="mt-2"
-                            />
-                            <p className="text-sm text-gray-600 mt-1">
-                                Chaque agent doit être assigné à un guichet
-                                unique
-                            </p>
-                        </div>
-                    </>
+                    <div className="mt-4">
+                        <InputLabel htmlFor="matricule" value="Matricule" />
+                        <TextInput
+                            id="matricule"
+                            type="text"
+                            name="matricule"
+                            value={data.matricule}
+                            className="mt-1 block w-full"
+                            onChange={(e) =>
+                                setData("matricule", e.target.value)
+                            }
+                            required={data.role === "agent"}
+                            placeholder="AGT001"
+                        />
+                        <InputError
+                            message={errors.matricule}
+                            className="mt-2"
+                        />
+                    </div>
                 )}
 
                 <div className="mt-4">

@@ -3,14 +3,16 @@
 ## 🚀 Démarrage Rapide
 
 ### 1. Connexion Unifiée
-- **Page unique de connexion** : `/login`
-- **Champ unique** : Email ou Matricule
-- **Redirection automatique** selon le rôle (admin → `/admin`, agent → `/agent`)
+
+-   **Page unique de connexion** : `/login`
+-   **Champ unique** : Email ou Matricule
+-   **Redirection automatique** selon le rôle (admin → `/admin`, agent → `/agent`)
 
 ### 2. Inscription Unifiée
-- **Page unique d'inscription** : `/register`
-- **Sélection du rôle** : Admin ou Agent
-- **Matricule automatique** si rôle Agent
+
+-   **Page unique d'inscription** : `/register`
+-   **Sélection du rôle** : Admin ou Agent
+-   **Matricule automatique** si rôle Agent
 
 ### 3. Comptes par Défaut
 
@@ -27,17 +29,20 @@ Mot de passe: agent123
 ## 📋 Workflow Simplifié
 
 ### Utilisateur Public
+
 1. Visite `/` → Page d'accueil
 2. Clique "Interface Mobile" → `/mobile` (création tickets)
 3. Clique "Affichage Public" → `/affichage` (suivi temps réel)
 
 ### Personnel Bancaire
+
 1. Visite `/` → Page d'accueil
 2. Clique "Se Connecter" → `/login`
 3. Saisit **email** (admin) ou **matricule** (agent)
 4. Redirection automatique vers l'interface appropriée
 
 ### Nouvel Employé
+
 1. Visite `/register`
 2. Choisit son rôle (Admin/Agent)
 3. Saisit son matricule si Agent
@@ -45,33 +50,37 @@ Mot de passe: agent123
 
 ## 🔐 Système d'Authentification
 
-- **Un seul guard** : `web` (Laravel par défaut)
-- **Une seule table** : `users`
-- **Différenciation par rôles** : `admin` / `agent`
-- **Identification flexible** : Email OU Matricule
+-   **Un seul guard** : `web` (Laravel par défaut)
+-   **Une seule table** : `users`
+-   **Différenciation par rôles** : `admin` / `agent`
+-   **Identification flexible** : Email OU Matricule
 
 ## 🎯 Fonctionnalités
 
 ### Interface Mobile (`/mobile`)
-- Sélection du service
-- Création de ticket
-- Affichage du numéro de ticket
+
+-   Sélection du service
+-   Création de ticket
+-   Affichage du numéro de ticket
 
 ### Affichage Public (`/affichage`)
-- Liste des tickets en attente
-- Ticket en cours de traitement
-- Mise à jour temps réel
+
+-   Liste des tickets en attente
+-   Ticket en cours de traitement
+-   Mise à jour temps réel
 
 ### Interface Agent (`/agent`)
-- Gestion de son guichet
-- Traitement des tickets
-- Statut connecté/déconnecté
+
+-   Gestion de son guichet
+-   Traitement des tickets
+-   Statut connecté/déconnecté
 
 ### Interface Admin (`/admin`)
-- Gestion complète des services
-- Gestion des guichets
-- Gestion des agents
-- Statistiques globales
+
+-   Gestion complète des services
+-   Gestion des guichets
+-   Gestion des agents
+-   Statistiques globales
 
 ## 🛠 Installation
 
@@ -96,14 +105,14 @@ php artisan serve
 
 ## 📱 URLs Principales
 
-- **Accueil** : `/`
-- **Connexion** : `/login`
-- **Inscription** : `/register`
-- **Mobile** : `/mobile`
-- **Affichage** : `/affichage`
-- **Agent** : `/agent` (protégé)
-- **Admin** : `/admin` (protégé)
+-   **Accueil** : `/`
+-   **Connexion** : `/login`
+-   **Inscription** : `/register`
+-   **Mobile** : `/mobile`
+-   **Affichage** : `/affichage`
+-   **Agent** : `/agent` (protégé)
+-   **Admin** : `/admin` (protégé)
 
 ---
 
-*Système optimisé pour la simplicité et l'efficacité*
+_Système optimisé pour la simplicité et l'efficacité_

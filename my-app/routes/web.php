@@ -17,20 +17,19 @@ Route::get('/', function () {
 // Dashboard principal avec redirection automatique selon rôle
 Route::get('/dashboard', function () {
     $user = auth()->user();
-    
+
     if ($user && $user->role === 'admin') {
         return redirect('/admin');
     } elseif ($user && $user->role === 'agent') {
         return redirect('/guichet');
     }
-    
+
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Interface administrateur
-Route::get('/admin', function () {
-    return Inertia::render('AdminDashboard');
-})->middleware(['auth', 'verified', 'role:admin'])->name('admin');
+Route::get('/admin', [App\Http\Controllers\AdminController::class, 'dashboard'])
+    ->middleware(['auth', 'verified', 'role:admin'])->name('admin');
 
 // Interface agent/guichet
 Route::get('/guichet', [App\Http\Controllers\GuichetController::class, 'dashboard'])
