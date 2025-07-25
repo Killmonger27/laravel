@@ -10,7 +10,12 @@ import {
     FiBarChart,
 } from "react-icons/fi";
 
-export default function UnifiedAdminDashboard({ auth, statistiques }) {
+export default function UnifiedAdminDashboard({
+    auth,
+    statistiques,
+    statistiques_services = [],
+    activite_recente = [],
+}) {
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
@@ -23,40 +28,59 @@ export default function UnifiedAdminDashboard({ auth, statistiques }) {
 
     const stats = [
         {
-            name: "Files actives",
-            value: statistiques?.services_actifs || 2,
-            subtitle: "Services disponibles",
-            icon: FiUsers,
-            color: "text-blue-500",
-            bg: "bg-gradient-to-br from-blue-50 to-indigo-50",
-            iconBg: "bg-gradient-to-br from-blue-500 to-indigo-600",
+            name: "Guichets",
+            value: statistiques?.guichets_total ?? "-",
+            subtitle: "Total guichets",
+            icon: FiBarChart,
+            color: "text-indigo-600",
+            bg: "bg-gradient-to-br from-indigo-50 to-blue-50",
+            iconBg: "bg-gradient-to-br from-indigo-500 to-blue-600",
         },
+
         {
-            name: "En attente",
-            value: statistiques?.tickets_en_attente || 6,
-            subtitle: "Clients en file",
+            name: "Tickets aujourd'hui",
+            value: statistiques?.tickets_aujourdhui ?? "-",
+            subtitle: "Émis aujourd'hui",
             icon: FiClock,
             color: "text-indigo-600",
             bg: "bg-gradient-to-br from-indigo-50 to-blue-50",
             iconBg: "bg-gradient-to-br from-indigo-500 to-blue-600",
         },
         {
-            name: "Temps moyen",
-            value: statistiques?.temps_moyen_global || "0 min",
-            subtitle: "Attente moyenne",
-            icon: FiTrendingUp,
+            name: "Tickets terminés",
+            value: statistiques?.tickets_termines ?? "-",
+            subtitle: "Complétés aujourd'hui",
+            icon: FiCheckCircle,
+            color: "text-emerald-500",
+            bg: "bg-gradient-to-br from-emerald-50 to-teal-50",
+            iconBg: "bg-gradient-to-br from-emerald-500 to-teal-600",
+        },
+        {
+            name: "En attente",
+            value: statistiques?.tickets_en_attente ?? "-",
+            subtitle: "Clients en file",
+            icon: FiClock,
+            color: "text-yellow-600",
+            bg: "bg-gradient-to-br from-yellow-50 to-orange-50",
+            iconBg: "bg-gradient-to-br from-yellow-400 to-orange-500",
+        },
+        {
+            name: "En cours",
+            value: statistiques?.tickets_en_cours ?? "-",
+            subtitle: "Traitement en cours",
+            icon: FiActivity,
             color: "text-blue-600",
             bg: "bg-gradient-to-br from-blue-50 to-indigo-50",
             iconBg: "bg-gradient-to-br from-blue-500 to-indigo-600",
         },
         {
-            name: "Traités aujourd'hui",
-            value: statistiques?.tickets_traites_aujourdhui || 38,
-            subtitle: "Tickets complétés",
-            icon: FiCheckCircle,
-            color: "text-emerald-500",
-            bg: "bg-gradient-to-br from-emerald-50 to-teal-50",
-            iconBg: "bg-gradient-to-br from-emerald-500 to-teal-600",
+            name: "Temps moyen",
+            value: statistiques?.temps_moyen_global ?? "-",
+            subtitle: "Attente moyenne",
+            icon: FiTrendingUp,
+            color: "text-blue-600",
+            bg: "bg-gradient-to-br from-blue-50 to-indigo-50",
+            iconBg: "bg-gradient-to-br from-blue-500 to-indigo-600",
         },
     ];
 
@@ -67,7 +91,7 @@ export default function UnifiedAdminDashboard({ auth, statistiques }) {
             {/* Header du tableau de bord */}
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-gray-900">
-                    Tableau de bord
+                    Tableau d bord
                 </h1>
                 <p className="text-gray-600">
                     Vue d'ensemble de l'activité bancaire en temps réel
@@ -75,7 +99,7 @@ export default function UnifiedAdminDashboard({ auth, statistiques }) {
             </div>
 
             {/* Cartes de statistiques */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-6">
                 {stats.map((stat) => {
                     const Icon = stat.icon;
                     return (
@@ -107,7 +131,7 @@ export default function UnifiedAdminDashboard({ auth, statistiques }) {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Section État des files d'attente */}
+                {/* Section État des files d'attente dynamique */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100">
                     <div className="px-6 py-4 border-b border-gray-100">
                         <h3 className="text-lg font-semibold text-gray-900">
@@ -116,56 +140,53 @@ export default function UnifiedAdminDashboard({ auth, statistiques }) {
                     </div>
                     <div className="p-6">
                         <div className="space-y-4">
-                            {/* Service 1 */}
-                            <div className="border border-gray-200 rounded-lg p-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm font-medium text-gray-700">
-                                        Ouverture de compte
-                                    </span>
-                                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                                        Normale
-                                    </span>
+                            {statistiques_services.length === 0 && (
+                                <div className="text-gray-400 text-center">
+                                    Aucun service trouvé.
                                 </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs text-gray-500">
-                                        4 en attente
-                                    </span>
-                                    <span className="text-xs text-gray-500">
-                                        temps d'attente
-                                    </span>
+                            )}
+                            {statistiques_services.map((service) => (
+                                <div
+                                    key={service.id}
+                                    className="border border-gray-200 rounded-lg p-4"
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-sm font-medium text-gray-700">
+                                            {service.nom}
+                                        </span>
+                                        <span
+                                            className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                                service.statut === "actif"
+                                                    ? "bg-green-100 text-green-800"
+                                                    : service.statut ===
+                                                      "maintenance"
+                                                    ? "bg-yellow-100 text-yellow-800"
+                                                    : "bg-gray-100 text-gray-800"
+                                            }`}
+                                        >
+                                            {service.statut}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs text-gray-500">
+                                            {service.tickets_en_attente} en
+                                            attente
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                            {service.tickets_aujourdhui}{" "}
+                                            aujourd'hui
+                                        </span>
+                                    </div>
+                                    <div className="text-xl font-bold text-gray-900">
+                                        {service.tickets_termines} traités
+                                    </div>
                                 </div>
-                                <div className="text-xl font-bold text-gray-900">
-                                    12 min
-                                </div>
-                            </div>
-
-                            {/* Service 2 */}
-                            <div className="border border-gray-200 rounded-lg p-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm font-medium text-gray-700">
-                                        Service client
-                                    </span>
-                                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
-                                        Faible
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs text-gray-500">
-                                        2 en attente
-                                    </span>
-                                    <span className="text-xs text-gray-500">
-                                        temps d'attente
-                                    </span>
-                                </div>
-                                <div className="text-xl font-bold text-gray-900">
-                                    5 min
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
                 </div>
 
-                {/* Section Tickets récents */}
+                {/* Section Tickets récents dynamique */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100">
                     <div className="px-6 py-4 border-b border-gray-100">
                         <h3 className="text-lg font-semibold text-gray-900">
@@ -174,62 +195,56 @@ export default function UnifiedAdminDashboard({ auth, statistiques }) {
                     </div>
                     <div className="p-6">
                         <div className="space-y-3">
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <div className="font-medium text-sm text-gray-900">
-                                        A002
+                            {activite_recente.length === 0 && (
+                                <div className="text-gray-400 text-center">
+                                    Aucune activité récente.
+                                </div>
+                            )}
+                            {activite_recente.map((ticket) => (
+                                <div
+                                    key={ticket.id}
+                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                                >
+                                    <div>
+                                        <div className="font-medium text-sm text-gray-900">
+                                            {ticket.numero}
+                                        </div>
+                                        <div className="text-xs text-gray-500">
+                                            {ticket.service?.nom || "-"}
+                                        </div>
                                     </div>
-                                    <div className="text-xs text-gray-500">
-                                        Ouverture de compte
+                                    <div className="text-right">
+                                        <span
+                                            className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                                ticket.statut === "termine"
+                                                    ? "bg-green-100 text-green-800"
+                                                    : ticket.statut ===
+                                                      "en_cours"
+                                                    ? "bg-blue-100 text-blue-800"
+                                                    : ticket.statut ===
+                                                      "en_attente"
+                                                    ? "bg-yellow-100 text-yellow-800"
+                                                    : "bg-gray-100 text-gray-800"
+                                            }`}
+                                        >
+                                            {ticket.statut.replace("_", " ")}
+                                        </span>
+                                        <div className="text-xs text-gray-500 mt-1">
+                                            {ticket.created_at
+                                                ? new Date(
+                                                      ticket.created_at
+                                                  ).toLocaleTimeString(
+                                                      "fr-FR",
+                                                      {
+                                                          hour: "2-digit",
+                                                          minute: "2-digit",
+                                                      }
+                                                  )
+                                                : ""}
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                                        En cours
-                                    </span>
-                                    <div className="text-xs text-gray-500 mt-1">
-                                        09:30
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <div className="font-medium text-sm text-gray-900">
-                                        A001
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                        Ouverture de compte
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                                        Terminé
-                                    </span>
-                                    <div className="text-xs text-gray-500 mt-1">
-                                        09:15
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <div className="font-medium text-sm text-gray-900">
-                                        B003
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                        Service client
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                                        Terminé
-                                    </span>
-                                    <div className="text-xs text-gray-500 mt-1">
-                                        09:10
-                                    </div>
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
                 </div>
