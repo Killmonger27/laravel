@@ -73,4 +73,9 @@ class TicketController extends Controller
 
         return response()->json($ticket);
     }
+
+    public function show(Ticket $ticket): JsonResponse
+    {
+        return response()->json($ticket->load(['service', 'guichet', 'agent']));
+    }
 }

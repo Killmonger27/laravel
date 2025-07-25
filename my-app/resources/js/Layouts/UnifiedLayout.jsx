@@ -20,6 +20,10 @@ import {
 export default function UnifiedLayout({ user, children, title = "SysBanque" }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    // Récupérer l'URL courante pour déterminer quelle page est active
+    const currentPath =
+        typeof window !== "undefined" ? window.location.pathname : "";
+
     // Navigation basée sur le rôle
     const getNavigation = () => {
         if (user.role === "admin") {
@@ -28,44 +32,43 @@ export default function UnifiedLayout({ user, children, title = "SysBanque" }) {
                     name: "Dashboard",
                     href: "/admin",
                     icon: FiHome,
-                    current: true,
-                },
-                {
-                    name: "File d'attente",
-                    href: "/admin/queue",
-                    icon: FiUsers,
-                    current: false,
-                    badge: "12",
+                    current: currentPath === "/admin",
                 },
                 {
                     name: "Tickets",
                     href: "/admin/tickets",
                     icon: FiFileText,
-                    current: false,
+                    current: currentPath === "/admin/tickets",
                 },
                 {
                     name: "Guichets",
                     href: "/admin/guichets",
                     icon: FiTool,
-                    current: false,
+                    current: currentPath === "/admin/guichets",
+                },
+                {
+                    name: "Services",
+                    href: "/admin/services",
+                    icon: FiActivity,
+                    current: currentPath === "/admin/services",
                 },
                 {
                     name: "Utilisateurs",
                     href: "/admin/users",
                     icon: FiUsers,
-                    current: false,
+                    current: currentPath === "/admin/users",
                 },
                 {
                     name: "Statistiques",
                     href: "/admin/stats",
                     icon: FiBarChart,
-                    current: false,
+                    current: currentPath === "/admin/stats",
                 },
                 {
                     name: "Paramètres",
                     href: "/admin/settings",
                     icon: FiSettings,
-                    current: false,
+                    current: currentPath === "/admin/settings",
                 },
             ];
         } else {
@@ -74,25 +77,19 @@ export default function UnifiedLayout({ user, children, title = "SysBanque" }) {
                     name: "Dashboard",
                     href: "/guichet",
                     icon: FiHome,
-                    current: true,
-                },
-                {
-                    name: "File d'attente",
-                    href: "/guichet/queue",
-                    icon: FiUsers,
-                    current: false,
+                    current: currentPath === "/guichet",
                 },
                 {
                     name: "Historique",
                     href: "/guichet/history",
                     icon: FiClock,
-                    current: false,
+                    current: currentPath === "/guichet/history",
                 },
                 {
                     name: "Paramètres",
                     href: "/guichet/settings",
                     icon: FiSettings,
-                    current: false,
+                    current: currentPath === "/guichet/settings",
                 },
             ];
         }
@@ -157,26 +154,8 @@ export default function UnifiedLayout({ user, children, title = "SysBanque" }) {
                         <FiMenu className="h-6 w-6" />
                     </button>
 
-                    <div className="flex-1 px-4 flex justify-between items-center">
+                    <div className="flex-1 px-4 flex justify-end items-center">
                         {/* Horloge et date */}
-                        <div className="flex items-center">
-                            <div className="text-right">
-                                <div className="text-xl font-bold text-gray-900">
-                                    {new Date().toLocaleTimeString("fr-FR", {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                    })}
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                    {new Date().toLocaleDateString("fr-FR", {
-                                        weekday: "long",
-                                        day: "numeric",
-                                        month: "long",
-                                        year: "numeric",
-                                    })}
-                                </div>
-                            </div>
-                        </div>
 
                         <div className="ml-4 flex items-center space-x-4">
                             {/* Notifications */}
@@ -242,7 +221,7 @@ function SidebarContent({ navigation, user, onLogout }) {
     return (
         <div className="flex flex-col h-full bg-white border-r border-gray-200">
             {/* Logo */}
-            <div className="flex items-center h-16 flex-shrink-0 px-6 bg-blue-600">
+            <div className="flex items-center h-16 flex-shrink-0 px-6 bg-gradient-to-r from-blue-500 to-indigo-600">
                 <div className="flex items-center">
                     <div className="h-8 w-8 bg-white rounded-lg flex items-center justify-center mr-3">
                         <span className="text-blue-600 font-bold text-lg">
@@ -256,34 +235,6 @@ function SidebarContent({ navigation, user, onLogout }) {
                         <p className="text-blue-100 text-xs">
                             Système de gestion
                         </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* User info card */}
-            <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-                <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            {user.role === "admin" ? (
-                                <FiShield className="h-6 w-6 text-blue-600" />
-                            ) : (
-                                <FiUser className="h-6 w-6 text-blue-600" />
-                            )}
-                        </div>
-                    </div>
-                    <div className="ml-3">
-                        <div className="text-gray-900 font-medium">
-                            {user.name}
-                        </div>
-                        <div className="text-gray-500 text-sm capitalize">
-                            {user.role}
-                        </div>
-                        {user.matricule && (
-                            <div className="text-gray-400 text-xs">
-                                {user.matricule}
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
@@ -321,19 +272,6 @@ function SidebarContent({ navigation, user, onLogout }) {
                     );
                 })}
             </nav>
-
-            {/* Test Système (pour admin seulement) */}
-            {user.role === "admin" && (
-                <div className="px-6 py-4 border-t border-gray-200">
-                    <Link
-                        href="/admin/test"
-                        className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors duration-200"
-                    >
-                        <FiTool className="mr-3 h-5 w-5 text-gray-400" />
-                        Test Système
-                    </Link>
-                </div>
-            )}
 
             {/* Logout button */}
             <div className="flex-shrink-0 p-6 border-t border-gray-200">

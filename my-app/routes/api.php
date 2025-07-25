@@ -24,6 +24,7 @@ Route::prefix('v1')->group(function () {
     // Tickets
     Route::get('/tickets', [TicketController::class, 'index']);
     Route::post('/tickets', [TicketController::class, 'store']);
+    Route::get('/tickets/{ticket}', [TicketController::class, 'show']);
     Route::patch('/tickets/{ticket}/statut', [TicketController::class, 'updateStatut']);
     Route::get('/tickets/numero/{numero}', [TicketController::class, 'getByNumero']);
 });

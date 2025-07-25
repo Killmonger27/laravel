@@ -12,7 +12,7 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('welcome');
 
 // Dashboard principal avec redirection automatique selon rôle
 Route::get('/dashboard', function () {
@@ -31,6 +31,33 @@ Route::get('/dashboard', function () {
 Route::get('/admin', [App\Http\Controllers\AdminController::class, 'dashboard'])
     ->middleware(['auth', 'verified', 'role:admin'])->name('admin');
 
+// Routes admin spécifiques
+Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+    Route::get('/admin/tickets', function () {
+        return Inertia::render('Admin/Tickets', ['auth' => ['user' => auth()->user()]]);
+    })->name('admin.tickets');
+
+    Route::get('/admin/guichets', function () {
+        return Inertia::render('Admin/Guichets', ['auth' => ['user' => auth()->user()]]);
+    })->name('admin.guichets');
+
+    Route::get('/admin/services', function () {
+        return Inertia::render('Admin/Services', ['auth' => ['user' => auth()->user()]]);
+    })->name('admin.services');
+
+    Route::get('/admin/users', function () {
+        return Inertia::render('Admin/Users', ['auth' => ['user' => auth()->user()]]);
+    })->name('admin.users');
+
+    Route::get('/admin/stats', function () {
+        return Inertia::render('Admin/Stats', ['auth' => ['user' => auth()->user()]]);
+    })->name('admin.stats');
+
+    Route::get('/admin/settings', function () {
+        return Inertia::render('Admin/Settings', ['auth' => ['user' => auth()->user()]]);
+    })->name('admin.settings');
+});
+
 // Interface agent/guichet
 Route::get('/guichet', [App\Http\Controllers\GuichetController::class, 'dashboard'])
     ->middleware(['auth', 'verified', 'role:agent'])->name('guichet');
@@ -47,13 +74,24 @@ Route::post('/guichet/commencer/{ticket}', [App\Http\Controllers\GuichetControll
 Route::post('/guichet/terminer/{ticket}', [App\Http\Controllers\GuichetController::class, 'terminerTicket'])
     ->middleware(['auth', 'verified', 'role:agent'])->name('guichet.terminer');
 
+// Routes agent spécifiques
+Route::middleware(['auth', 'verified', 'role:agent'])->group(function () {
+    Route::get('/guichet/history', function () {
+        return Inertia::render('Agent/History', ['auth' => ['user' => auth()->user()]]);
+    })->name('guichet.history');
+
+    Route::get('/guichet/settings', function () {
+        return Inertia::render('Agent/Settings', ['auth' => ['user' => auth()->user()]]);
+    })->name('guichet.settings');
+});
+
 // Routes publiques (sans authentification)
 Route::get('/mobile', function () {
-    return Inertia::render('TicketMobile');
+    return Inertia::render('TicketMobileModerne');
 })->name('mobile');
 
 Route::get('/affichage', function () {
-    return Inertia::render('AffichagePublic');
+    return Inertia::render('AffichagePublicModerne');
 })->name('affichage');
 
 // Routes profil utilisateur

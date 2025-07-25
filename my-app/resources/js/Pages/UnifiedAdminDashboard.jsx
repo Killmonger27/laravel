@@ -27,36 +27,36 @@ export default function UnifiedAdminDashboard({ auth, statistiques }) {
             value: statistiques?.services_actifs || 2,
             subtitle: "Services disponibles",
             icon: FiUsers,
-            color: "text-blue-600",
-            bg: "bg-blue-50",
-            iconBg: "bg-blue-100",
+            color: "text-blue-500",
+            bg: "bg-gradient-to-br from-blue-50 to-indigo-50",
+            iconBg: "bg-gradient-to-br from-blue-500 to-indigo-600",
         },
         {
             name: "En attente",
             value: statistiques?.tickets_en_attente || 6,
             subtitle: "Clients en file",
             icon: FiClock,
-            color: "text-orange-600",
-            bg: "bg-orange-50",
-            iconBg: "bg-orange-100",
+            color: "text-indigo-600",
+            bg: "bg-gradient-to-br from-indigo-50 to-blue-50",
+            iconBg: "bg-gradient-to-br from-indigo-500 to-blue-600",
         },
         {
             name: "Temps moyen",
             value: statistiques?.temps_moyen_global || "0 min",
             subtitle: "Attente moyenne",
             icon: FiTrendingUp,
-            color: "text-purple-600",
-            bg: "bg-purple-50",
-            iconBg: "bg-purple-100",
+            color: "text-blue-600",
+            bg: "bg-gradient-to-br from-blue-50 to-indigo-50",
+            iconBg: "bg-gradient-to-br from-blue-500 to-indigo-600",
         },
         {
             name: "Traités aujourd'hui",
             value: statistiques?.tickets_traites_aujourdhui || 38,
             subtitle: "Tickets complétés",
             icon: FiCheckCircle,
-            color: "text-green-600",
-            bg: "bg-green-50",
-            iconBg: "bg-green-100",
+            color: "text-emerald-500",
+            bg: "bg-gradient-to-br from-emerald-50 to-teal-50",
+            iconBg: "bg-gradient-to-br from-emerald-500 to-teal-600",
         },
     ];
 
@@ -88,9 +88,7 @@ export default function UnifiedAdminDashboard({ auth, statistiques }) {
                                     <div
                                         className={`${stat.iconBg} rounded-lg p-2 mb-3 inline-block`}
                                     >
-                                        <Icon
-                                            className={`h-5 w-5 ${stat.color}`}
-                                        />
+                                        <Icon className="h-5 w-5 text-white" />
                                     </div>
                                     <div className="text-sm font-medium text-gray-600">
                                         {stat.name}

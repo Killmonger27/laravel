@@ -208,7 +208,7 @@ class GuichetController extends Controller
             'services_actifs' => 2, // Statique pour l'instant
         ];
 
-        return Inertia::render('GuichetDashboardNew', [
+        return Inertia::render('UnifiedGuichetDashboardNew', [
             'guichet' => $guichet,
             'ticketsEnAttente' => $ticketsEnAttente,
             'ticketEnCours' => $ticketEnCours,
